@@ -16,6 +16,7 @@ public sealed class CommandsToRegister(Console con) : CommandRoot(con), IConsole
         => Branch(Name,
                       GetProfileBranches(),
                       GetRuleBranches(),
+                      GetSettingBranches(),
                       Leaf("help", PrintHelp));
     
     private Branch GetProfileBranches()
@@ -106,6 +107,16 @@ public sealed class CommandsToRegister(Console con) : CommandRoot(con), IConsole
                 Log.Info("Cleared all rules in current profile.");
             })
         );
+
+    private Branch GetSettingBranches()
+        => Branch("-s",
+            Leaf("lock", () =>
+            {
+                Setting.stylePointLock.Value = !Setting.stylePointLock.Value;
+            }),
+            Leaf("status", () => 
+                LogHelper.Info($"StylePointLock = {Setting.stylePointLock.Value}"))
+        );
     
     private void DoAdd(string id, string styleName, int points,
                        string className, string methodName, string[]? argTypes)
@@ -150,6 +161,11 @@ public sealed class CommandsToRegister(Console con) : CommandRoot(con), IConsole
         Log.Info("  add <id> <styleName> <points> <className> <methodName> [argType] [argType]");
         Log.Info("  rm  <id>                          - remove a rule by id");
         Log.Info("  clear                             - remove all rules");
+        Log.Info("");
+        Log.Info("[Setting] csa -s");
+        Log.Info("  lock                              - change the value of styleLock");
+        Log.Info("  status                            - list the status of setting");
+        
     }
 
     public Logger Log { get; } = new("csa");

@@ -26,6 +26,7 @@ public class Plugin : BaseUnityPlugin
         // Plugin startup logic
         Logger = base.Logger;
         LogHelper.Init(Logger);
+        Setting.Init();
         Logger.LogInfo($"Plugin {MyPluginInfo.PLUGIN_GUID} is loaded!");
         gameObject.hideFlags = HideFlags.DontSaveInEditor;
 

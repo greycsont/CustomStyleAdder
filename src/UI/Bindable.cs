@@ -1,4 +1,8 @@
-﻿using System;
+﻿// The whole concept is steal from osu-framework
+// <https://github.com/ppy/osu-framework/blob/master/osu.Framework/Bindables/Bindable.cs>
+// So it's kinda copyrighted to ppy Pty Ltd right?
+
+using System;
 using System.Collections.Generic;
 
 namespace CustomStyleAdder.UI;

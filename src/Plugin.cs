@@ -30,7 +30,9 @@ public class Plugin : BaseUnityPlugin
         gameObject.hideFlags = HideFlags.DontSaveInEditor;
 
         var harmony = new Harmony(MyPluginInfo.PLUGIN_GUID);
+        harmony.PatchAll();
         TriggerEngine.Init(harmony);
+        ProfileManager.Init();
         
         SceneManager.sceneLoaded += HandleSceneChanging;
     }

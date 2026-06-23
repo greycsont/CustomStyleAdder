@@ -35,6 +35,15 @@
             <Private>false</Private>
             <CopyLocal>false</CopyLocal>
         </Reference>
+        <Reference Include="plog">
+            <HintPath>$(UltrakillDir)ULTRAKILL_Data/Managed/plog.dll</HintPath>
+            <Private>false</Private>
+            <CopyLocal>false</CopyLocal>
+        </Reference>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="src\UI\" />
     </ItemGroup>
 
 </Project>

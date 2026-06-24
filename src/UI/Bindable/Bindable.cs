@@ -4,22 +4,17 @@
 
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 
 namespace CustomStyleAdder.UI;
 
-public readonly struct ValueChangedEvent<T>
+// Non-generic base (osu-style) so a config store can hold heterogeneous Bindable<T>.
+public interface IBindable : IParseable, IUnbindable
 {
-    public readonly T OldValue;
-    public readonly T NewValue;
-
-    public ValueChangedEvent(T oldValue, T newValue)
-    {
-        OldValue = oldValue;
-        NewValue = newValue;
-    }
+    object? GetValue();
 }
 
-public interface IBindable<T>
+public interface IBindable<T> : IBindable
 {
     T Value { get; }
     bool Disabled { get; }
@@ -29,12 +24,7 @@ public interface IBindable<T>
     Bindable<T> GetBoundCopy();
 }
 
-public interface IUnbindable
-{
-    void UnbindAll();
-}
-
-public class Bindable<T> : IBindable<T>, IUnbindable
+public class Bindable<T> : IBindable<T>
 {
     public event Action<ValueChangedEvent<T>>? ValueChanged;
     public event Action<bool>? DisabledChanged;
@@ -71,6 +61,33 @@ public class Bindable<T> : IBindable<T>, IUnbindable
     
     public bool IsDefault => EqualityComparer<T>.Default.Equals(_value, _defaultValue);
     public void SetToDefault() => Value = Default;
+
+    // ── Serialization (osu: IParseable + ToString) ──
+    // GetValue boxes the current value for the JSON serializer; Parse coerces a
+    // loosely-typed input (JSON object / console string) back into T.
+    public object? GetValue() => _value;
+    
+    // IParseable
+    public virtual void Parse(object input, IFormatProvider provider)
+    {
+        switch (input)
+        {
+            case T t:           // already the right type (e.g. bool/string from JSON)
+                Value = t;
+                break;
+            case null:
+                Value = default!;
+                break;
+            default:
+                var type = typeof(T);
+                Value = type.IsEnum
+                    ? (T)Enum.Parse(type, input.ToString()!)
+                    : (T)Convert.ChangeType(input, type, provider);
+                break;
+        }
+    }
+
+    public override string ToString() => Convert.ToString(_value, CultureInfo.InvariantCulture) ?? "";
 
     public bool Disabled
     {
@@ -167,10 +184,12 @@ public class Bindable<T> : IBindable<T>, IUnbindable
         _bindings.Clear();
     }
 
-    public void UnbindFrom(Bindable<T> other)
-    {
-        removeWeakReference(this, other);
-        removeWeakReference(other, this);
+    public void UnbindFrom(IUnbindable them)                                                                                                                                                                                    
+    {                                                                                                                                                                                                                           
+        if (them is not Bindable<T> other)                                                                                                                                                                                      
+            throw new InvalidOperationException($"Can't unbind from a non-matching bindable.");                                                                                                                                 
+        removeWeakReference(this, other);                                                                                                                                                                                       
+        removeWeakReference(other, this);                                                                                                                                                                                       
     }
 
     public void UnbindAll()

@@ -29,7 +29,12 @@ public interface IBindable<T>
     Bindable<T> GetBoundCopy();
 }
 
-public class Bindable<T> : IBindable<T>
+public interface IUnbindable
+{
+    void UnbindAll();
+}
+
+public class Bindable<T> : IBindable<T>, IUnbindable
 {
     public event Action<ValueChangedEvent<T>>? ValueChanged;
     public event Action<bool>? DisabledChanged;
@@ -53,7 +58,7 @@ public class Bindable<T> : IBindable<T>
             if (Disabled)
                 throw new InvalidOperationException($"Can not set _value to \"{value?.ToString()}\" as bindable is disabled.");
 
-            if (EqualityComparer<T>.Default.Equals(value, value)) return;
+            if (EqualityComparer<T>.Default.Equals(_value, value)) return;
             SetValue(this._value, value);
         } 
     }
@@ -64,7 +69,7 @@ public class Bindable<T> : IBindable<T>
         set => _defaultValue = value;
     }
     
-    public bool IsDefault => EqualityComparer<T>.Default.Equals(_value, default);
+    public bool IsDefault => EqualityComparer<T>.Default.Equals(_value, _defaultValue);
     public void SetToDefault() => Value = Default;
 
     public bool Disabled
@@ -158,6 +163,8 @@ public class Bindable<T> : IBindable<T>
         foreach (var weak in _bindings)
             if (weak.TryGetTarget(out var other))
                 removeWeakReference(other, this);
+
+        _bindings.Clear();
     }
 
     public void UnbindFrom(Bindable<T> other)

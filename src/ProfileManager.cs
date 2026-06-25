@@ -17,8 +17,12 @@ public static class ProfileManager
 
     public static void Init()
     {
-        // LoadFromDisk(); 
-        if (profiles.Count == 0)
+        foreach (var p in ProfileStore.LoadAll())
+            profiles[p.name] = p;
+
+        if (profiles.Count > 0)
+            Switch(profiles.Keys.First());
+        else
             Create("Default", switchTo: true);
     }
 
@@ -47,6 +51,7 @@ public static class ProfileManager
         var p = new Profile { name = name };
         profiles[name] = p;
         if (switchTo || profiles.Count == 1) SetCurrent(p);
+        ProfileStore.Save(p);
         return p;
     }
 
@@ -65,6 +70,7 @@ public static class ProfileManager
             rules = new List<StyleRule>(src.rules)
         };
         profiles[copy.name] = copy;
+        ProfileStore.Save(copy);
         return copy;
     }
     
@@ -77,6 +83,7 @@ public static class ProfileManager
         if (!profiles.Remove(name)) return;
         if (Current?.name == name)
             SetCurrent(profiles.Values.FirstOrDefault());
+        ProfileStore.Delete(name);
     }
     
     /// <summary>
@@ -91,6 +98,8 @@ public static class ProfileManager
         profiles.Remove(oldName);
         p.name = newName;
         profiles[newName] = p; // key = p.name as said in the profiles in the f top
+        ProfileStore.Delete(oldName);
+        ProfileStore.Save(p);
     }
 
     private static string UniqueName(string baseName)

@@ -102,7 +102,7 @@ public sealed class CommandsToRegister(Console con) : CommandRoot(con), IConsole
             Leaf("clear", () =>
             {
                 if (!TryGetCurrent(out var p)) return;
-                p.rules.Clear();
+                p.ClearRules();
                 RebindIfCurrent(p);
                 Log.Info("Cleared all rules in current profile.");
             })

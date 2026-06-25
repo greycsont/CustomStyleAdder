@@ -1,5 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
+using CustomStyleAdder.UI;
 
 namespace CustomStyleAdder;
 
@@ -9,10 +10,15 @@ public static class ProfileManager
     public static readonly Dictionary<string, Profile> profiles = new();
     public static Profile? Current { get; private set; }
 
+    // bumped whenever the current profile or its rules change; UI binds to it to rebuild
+    public static readonly Bindable<int> Revision = new();
+    internal static void NotifyChanged() => Revision.Value++;
+
     private static void SetCurrent(Profile? p)
     {
         Current = p;
         TriggerEngine.RebindAll(p?.rules ?? Enumerable.Empty<StyleRule>());
+        NotifyChanged();
     }
 
     public static void Init()

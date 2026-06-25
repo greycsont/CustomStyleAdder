@@ -112,10 +112,11 @@ public sealed class CommandsToRegister(Console con) : CommandRoot(con), IConsole
         => Branch("-s",
             Leaf("lock", () =>
             {
-                Setting.stylePointLock.Value = !Setting.stylePointLock.Value;
+                CsaConfig.Instance.Set(CsaSetting.StylePointLock,
+                    !CsaConfig.Instance.Get<bool>(CsaSetting.StylePointLock));
             }),
             Leaf("status", () => 
-                LogHelper.Info($"StylePointLock = {Setting.stylePointLock.Value}"))
+                LogHelper.Info($"StylePointLock = {CsaConfig.Instance.Get<bool>(CsaSetting.StylePointLock)}"))
         );
     
     private void DoAdd(string id, string styleName, int points,

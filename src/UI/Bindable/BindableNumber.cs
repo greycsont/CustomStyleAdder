@@ -5,6 +5,7 @@ namespace CustomStyleAdder.UI;
 /// <summary>
 /// A numeric <see cref="Bindable{T}"/> whose value is clamped into an optional
 /// [<see cref="MinValue"/>, <see cref="MaxValue"/>] range.
+/// it's not steal all from osu-framwork cuz it's complex as f
 /// </summary>
 /// <typeparam name="T">A comparable value type (e.g. int, float, double).</typeparam>
 public class BindableNumber<T> : Bindable<T> where T : struct, IComparable<T>

@@ -8,7 +8,13 @@ public record struct CustomStyle
 {
     public string styleName;
     public int stylePoints;
-    public int count;
+    
+    /// <summary>
+    /// if it's great or equal to 0
+    /// it will add count as postfix
+    /// </summary>
+    public int count = -1; 
+    
     public string prefix;
     public string postfix;
 
